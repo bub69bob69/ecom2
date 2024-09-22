@@ -1,0 +1,3 @@
+# not let .env file to be not pushed to git hub 
+# below will tell git hub to ignore .env file 
+.env

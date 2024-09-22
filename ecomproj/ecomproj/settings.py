@@ -1,7 +1,12 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load our environmental variables
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -14,10 +19,11 @@ SECRET_KEY = 'django-insecure-iun#8%$wy+g$at2kzljt#dnq3=k-6-dlph1d63u_0eitm)z1rm
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = []
 
 
 # Application definition
-
+                                                                                                                                                                                                                                                                 
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,6 +32,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'storeapp',
+    'cartapp',
+    'paymentapp',
+    'whitenoise.runserver_nostatic',
+
+
 ]
 
 MIDDLEWARE = [
@@ -36,6 +47,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhitenoiseMiddleware',
+
+
 ]
 
 ROOT_URLCONF = 'ecomproj.urls'
@@ -51,6 +65,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # below cart.context_processors from cartapp to cart.py and .cart' from context_processors to def cart(request):
+                'cartapp.context_processors.cart',
+
+
             ],
         },
     },
@@ -64,8 +82,21 @@ WSGI_APPLICATION = 'ecomproj.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        #'PASSWORD': os.environ.get('DB_PASSWORD_YO'),
+        #'PASSWORD': 'KXIfjjHPTdVMpndLSQcQIstKVkbSOyUl',
+        'PASSWORD': 'tiUGwsHNfvacqQhFaDGyAmAdfMjyNmiX',
+        #'HOST': 'meticulous-empathy.railway.internal',
+        #'HOST': 'viaduct.proxy.rlwy.net',
+        #'HOST': 'meticulous-empathy.DATABASE_URL',
+        'HOST': 'junction.proxy.rlwy.net',
+        'PORT': '15113',
+        #'PORT': '23278',
+        
     }
 }
 
@@ -105,6 +136,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = ['static/']
+
+# white noise static stuff
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

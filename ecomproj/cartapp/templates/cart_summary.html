@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- below this insert base.html code and navbar.html code -->
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">Shopping Cart</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">View Your Cart</p>
+                </div>
+            </div>
+        </header>
+        <br/>
+        <div class="container">
+        <!-- below means if there are products in the cart, do { for product in cart_products }  -->
+        {% if cart_products %}
+            {% for product in cart_products %} 
+            
+            <div class="card mb-3">
+                <div class="row g-0">
+                  <div class="col-md-4">
+                    <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="...">
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                    <center>
+                      <h5 class="card-title">{{ product.name }}</h5>
+                      <p class="card-text">{{ product.description }}</p>
+                      
+                    {% if product.is_sale %}
+        
+                        <div class="d-flex justify-content-center small text-warning mb-2">
+                            <div class="bi-star-fill"></div>
+                            &nbsp;&nbsp;Sale!&nbsp;&nbsp;
+                            <div class="bi-star-fill"></div>
+                        </div>
+                        
+                        <!-- Product price-->
+                        <strike>
+                            ${{ product.price }}
+                        </strike>
+                        &nbsp;
+                        ${{ product.sale_price }}
+                        <br/>
+                        {{ product.description }}
+                        <br/>
+                        {{ product.category }}
+                        
+        
+                    {% else %}
+        
+                        ${{ product.price }}
+                        <br/>
+                        ID: {{ product.id }}
+        
+                    {% endif %}
+                    <br/>
+                    <br/>
+                    <div class="row justify-content-center">
+                      <div class="col-md-2">Quantity:</div>
+                        <div class="col-md-2">
+                          <select class="form-select form-select-sm" id="select{{product.id}}">
+                            <!-- id="qty-cart"> -->
+                             
+                            <!--- below how you Loop through a dictionary on a django template page --->
+                            {% for key, value in quantities.items %}
+                            <!--- the product id is an integer and the key value is a string so use SLUGIFY --->
+                                {% if key == product.id|slugify %}
+
+                                    <option selected>
+                                        {{ value }}
+                                    </option>
+
+                                {% endif %}
+
+                            {% endfor %}
+                        
+                            
+
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                          </select>
+                      </div>
+                    </div>
+
+                    <br/>
+                    <br/>
+
+                      <a href="{% url 'home' %}" class="btn btn-danger">Home</a>
+                      <!-- data-index = more than 1 item which means more than 1 button. unique data index number which is the product id number -->
+<button type="button" data-index="{{product.id}}" class="btn btn-secondary update-cart">
+    Update
+</button>
+
+<button type="button" data-index="{{product.id}}" class="btn btn-danger delete-product">
+    Remove
+</button>
+                                            
+                    </center>    
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <br/>
+
+        {% endfor %}
+        <div align="right">        
+        
+            <h3>Total: ${{ totals }}</h3>
+            <a href="{% url 'checkout' %}" class="btn btn-danger">Checkout</a>
+
+        </div>
+        <br/><br/><br/>
+        {% else %}
+
+            <center><h4>There's nothing in the Cart</h4></center>
+            <br/><br/><br/><br/><br/><br/>
+
+        {% endif %} 
+        </div>
+
+
+
+
+<script>
+//  below is Update Cart
+// Check if button pressed. 
+// '.updat-cart' we use period (.) when we look up things in classes
+$(document).on('click', '.update-cart', function(e){
+    e.preventDefault();
+    // AJAX allows us to send something to the server back end without refreshing the web page
+    // Grab the Product ID
+    var productid = $(this).data('index');
+
+    $.ajax({
+    type: 'POST',
+    // below tells what URL we're posting it to
+    url: '{% url 'cart_update' %}',
+    data: {  // pass the data-index="{{ product.id }}" . Were passing that product id through the data index into the javascript
+        product_id: $(this).data('index'),
+        product_qty: $('#select' + productid + 'option:selected').text(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+        },
+
+        success: function(json){
+          // console.log(json)
+          // document.getElementById("cart_quantity").textContent = json.qty       
+          location.reload();
+
+        },
+
+        error: function(xhr, errmsg, err){
+
+        }
+
+
+    });
+
+})
+
+
+// below Delete item from Cart
+// Check if button pressed. 
+// '.updat-cart' we use period (.) when we look up things in classes
+$(document).on('click', '.delete-product', function(e){
+    e.preventDefault();
+    // AJAX allows us to send something to the server back end without refreshing the web page
+    // Grab the Product ID
+    //var productid = $(this).data('index');
+
+    $.ajax({
+    type: 'POST',
+    // below tells what URL we're posting it to
+    url: '{% url 'cart_delete' %}',
+    data: {  // pass the data-index="{{ product.id }}" . Were passing that product id through the data index into the javascript
+        product_id: $(this).data('index'),
+        //product_qty: $('#select' + productid + 'option:selected').text(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post'
+    },
+
+        success: function(json){
+          // console.log(json)
+          // document.getElementById("cart_quantity").textContent = json.qty       
+          location.reload();
+
+        },
+
+        error: function(xhr, errmsg, err){
+
+        }
+
+
+    });
+
+})
+
+
+</script>
+
+{% endblock %}
